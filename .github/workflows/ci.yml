@@ -84,6 +84,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Login to Amazon ECR
+        if: false
         uses: aws-actions/amazon-ecr-login@v2
 
       # 5) Build & push image (Jib)
