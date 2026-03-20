@@ -101,6 +101,18 @@ jobs:
               \"content\": \"$CONTENT\",
               \"sha\": \"$SHA\"
             }"
+          # Crear o actualizar el archivo
+          RESPONSE=$(curl -s -X PUT \
+            -H "Authorization: token $PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/Croti67/reportes-trivy/contents/$DEST_PATH" \
+            -d "{
+              \"message\": \"Add trivy report $FILENAME from ${{ github.repository }}\",
+              \"content\": \"$CONTENT\",
+              \"sha\": \"$SHA\"
+            }")
+    
+    echo "Respuesta API: $RESPONSE"
 
 
       # 4) Setup Java + tests (JaCoCo)
