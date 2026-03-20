@@ -87,7 +87,7 @@ jobs:
         env:
             PAT: ${{ secrets.PAT_TOKEN }}
         run: |
-            git clone https://x-access-token:${PAT}@github.com/Croti67/reportes-trivy.git
+            git clone "https://x-access-token:${PAT}@github.com/Croti67/reportes-trivy.git"
             mkdir -p reportes-trivy/branch/analisis
             cp ${{ steps.report.outputs.filename }} reportes-trivy/branch/analisis/
             cd reportes-trivy
