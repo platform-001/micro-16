@@ -75,12 +75,12 @@ jobs:
       - name: Debug PAT
         env:
              PAT: ${{ secrets.PAT_TOKEN }}
-            run: |
-              if [ -z "$PAT" ]; then
-                echo "PAT esta VACIO"
-              else
-                echo "PAT tiene valor OK"
-              fi  
+        run: |
+            if [ -z "$PAT" ]; then
+              echo "PAT esta VACIO"
+            else
+              echo "PAT tiene valor OK"
+            fi  
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
