@@ -83,21 +83,34 @@ jobs:
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
+        env:
+          PAT: ${{ secrets.PAT_TOKEN }}
         run: |
           if [ ! -f "${{ steps.report.outputs.filename }}" ]; then
-            echo "Trivy no generó archivo, creando vacío"
             echo "[]" > "${{ steps.report.outputs.filename }}"
           fi
-          git clone https://github.com/Croti67/reportes-trivy.git
-          mkdir -p reportes-trivy/branch/analisis
-          cp "${{ steps.report.outputs.filename }}" reportes-trivy/branch/analisis/
-          cd reportes-trivy
-          git config user.email "ci@github.com"
-          git config user.name "GitHub Actions"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Croti67/reportes-trivy.git
-          git add .
-          git commit -m "Add trivy report ${{ steps.report.outputs.filename }} from ${{ github.repository }}"
-          git push
+      
+          FILENAME="${{ steps.report.outputs.filename }}"
+          CONTENT=$(base64 -w 0 "$FILENAME")
+          DEST_PATH="branch/analisis/$FILENAME"
+      
+          # Verificar si el archivo ya existe para obtener su SHA
+          SHA=$(curl -s \
+            -H "Authorization: token $PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/Croti67/reportes-trivy/contents/$DEST_PATH" \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('sha',''))" 2>/dev/null || echo "")
+      
+          # Crear o actualizar el archivo
+          curl -s -X PUT \
+            -H "Authorization: token $PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/Croti67/reportes-trivy/contents/$DEST_PATH" \
+            -d "{
+              \"message\": \"Add trivy report $FILENAME from ${{ github.repository }}\",
+              \"content\": \"$CONTENT\",
+              \"sha\": \"$SHA\"
+            }"
 
 
       # 4) Setup Java + tests (JaCoCo)
