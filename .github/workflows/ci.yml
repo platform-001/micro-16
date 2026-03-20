@@ -83,19 +83,18 @@ jobs:
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
-        env:
-          PAT: ${{ secrets.PAT_TOKEN }}
         run: |
           if [ ! -f "${{ steps.report.outputs.filename }}" ]; then
             echo "Trivy no generó archivo, creando vacío"
             echo "[]" > "${{ steps.report.outputs.filename }}"
           fi
-          git clone https://$PAT@github.com/Croti67/reportes-trivy.git
+          git clone https://github.com/Croti67/reportes-trivy.git
           mkdir -p reportes-trivy/branch/analisis
           cp "${{ steps.report.outputs.filename }}" reportes-trivy/branch/analisis/
           cd reportes-trivy
           git config user.email "ci@github.com"
           git config user.name "GitHub Actions"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Croti67/reportes-trivy.git
           git add .
           git commit -m "Add trivy report ${{ steps.report.outputs.filename }} from ${{ github.repository }}"
           git push
