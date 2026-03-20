@@ -73,45 +73,20 @@ jobs:
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
-        env:
-          PAT: ${{ secrets.PAT_TOKEN }}
         run: |
-          if [ ! -f "${{ steps.report.outputs.filename }}" ]; then
-            echo "[]" > "${{ steps.report.outputs.filename }}"
-          fi
-      
           FILENAME="${{ steps.report.outputs.filename }}"
           CONTENT=$(base64 -w 0 "$FILENAME")
           DEST_PATH="branch/analisis/$FILENAME"
       
-          # Verificar si el archivo ya existe para obtener su SHA
-          SHA=$(curl -s \
-            -H "Authorization: token $PAT" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/Croti67/reportes-trivy/contents/$DEST_PATH" \
-            | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('sha',''))" 2>/dev/null || echo "")
-      
-          # Crear o actualizar el archivo
-          curl -s -X PUT \
-            -H "Authorization: token $PAT" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/Croti67/reportes-trivy/contents/$DEST_PATH" \
-            -d "{
-              \"message\": \"Add trivy report $FILENAME from ${{ github.repository }}\",
-              \"content\": \"$CONTENT\",
-              \"sha\": \"$SHA\"
-            }"
-          # Crear o actualizar el archivo
           RESPONSE=$(curl -s -X PUT \
-            -H "Authorization: token $PAT" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/Croti67/reportes-trivy/contents/$DEST_PATH" \
             -d "{
-              \"message\": \"Add trivy report $FILENAME from ${{ github.repository }}\",
-              \"content\": \"$CONTENT\",
-              \"sha\": \"$SHA\"
+              \"message\": \"Add trivy report $FILENAME\",
+              \"content\": \"$CONTENT\"
             }")
-
+      
           echo "Respuesta API: $RESPONSE"
 
 
