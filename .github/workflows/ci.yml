@@ -70,6 +70,16 @@ jobs:
             --output "${{ steps.report.outputs.filename }}" \
             --severity HIGH,CRITICAL \
             --exit-code 0 || true
+      - name: Push report to reportes-trivy
+        env:
+          PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+          echo "Longitud del PAT: ${#PAT}"
+          if [ ! -f "${{ steps.report.outputs.filename }}" ]; then
+            echo "Trivy no generó archivo, creando vacío"
+            echo "[]" > "${{ steps.report.outputs.filename }}"
+          fi
+          git clone https://$PAT@github.com/Croti67/reportes-trivy.git
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
