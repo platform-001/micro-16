@@ -60,17 +60,16 @@ jobs:
           FECHA="$(date +'%Y%m%d_%H%M%S')"
           FILENAME="report_${BRANCH_SLUG}_${FECHA}.json"
           echo "filename=$FILENAME" >> $GITHUB_OUTPUT
-
+          
       - name: Vulnerability scan (trivy fs json)
         continue-on-error: true
-        uses: aquasecurity/trivy-action@v0.28.0
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "json"
-          output: ${{ steps.report.outputs.filename }}
-          severity: "HIGH,CRITICAL"
-          exit-code: "0"
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          trivy fs . \
+            --format json \
+            --output "${{ steps.report.outputs.filename }}" \
+            --severity HIGH,CRITICAL \
+            --exit-code 0 || true
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
