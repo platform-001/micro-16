@@ -79,7 +79,7 @@ jobs:
           DEST_PATH="branch/analisis/$FILENAME"
       
           RESPONSE=$(curl -s -X PUT \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.PAT_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/platform-001/reportes-trivy/contents/$DEST_PATH" \
             -d "{
