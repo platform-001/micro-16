@@ -72,8 +72,23 @@ jobs:
           severity: "HIGH,CRITICAL"
           exit-code: "0"
 
+      # 3) Push report to reportes-trivy
+      - name: Push report to reportes-trivy
+        env:
+            PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+            git clone https://x-access-token:${PAT}@github.com/Croti67/reportes-trivy.git
+            mkdir -p reportes-trivy/branch/analisis
+            cp ${{ steps.report.outputs.filename }} reportes-trivy/branch/analisis/
+            cd reportes-trivy
+            git config user.email "ci@github.com"
+            git config user.name "GitHub Actions"
+            git add .
+            git commit -m "Add trivy report ${{ steps.report.outputs.filename }} from ${{ github.repository }}"
+            git push
 
-      # 3) Setup Java + tests (JaCoCo)
+
+      # 4) Setup Java + tests (JaCoCo)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -84,7 +99,7 @@ jobs:
       - name: Test + JaCoCo
         run: mvn -B test
 
-      # 4) AWS auth + ECR login
+      # 5) AWS auth + ECR login
       - name: Configure AWS credentials (OIDC)
         if: false
         uses: aws-actions/configure-aws-credentials@v4
@@ -96,14 +111,14 @@ jobs:
         if: false
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 5) Build & push image (Jib)
+      # 6) Build & push image (Jib)
       - name: Build & push image (Jib)
         if: false
         run: |
           mvn -B -DskipTests clean compile
           mvn -B -DskipTests jib:build -Dimage="${IMAGE_URI}"
 
-      # 6) Scan image (trivy image) -> JSON
+      # 7) Scan image (trivy image) -> JSON
       - name: Image scan (trivy image json)
         if: false
         continue-on-error: true
@@ -115,7 +130,7 @@ jobs:
           severity: "HIGH,CRITICAL"
           exit-code: "0"
 
-      # 7) Compute metrics (secrets/vulns/coverage) + decide build_status
+      # 8) Compute metrics (secrets/vulns/coverage) + decide build_status
       - name: Compute metrics
         if: false
         id: metrics
@@ -182,7 +197,7 @@ jobs:
               f.write(f"build_status={status}\n")
           PY
 
-      # 8) Update Port (branch entity) + OpenAPI + Security Findings (Trivy)
+      # 9) Update Port (branch entity) + OpenAPI + Security Findings (Trivy)
       - name: Update Port (branch) - metrics + image + OpenAPI + security details
         if: false
         env:
