@@ -63,7 +63,7 @@ jobs:
 
       - name: Vulnerability scan (trivy fs json)
         continue-on-error: true
-        uses: aquasecurity/trivy-action@v0.31.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           scan-type: "fs"
           scan-ref: "."
@@ -71,31 +71,25 @@ jobs:
           output: ${{ steps.report.outputs.filename }}
           severity: "HIGH,CRITICAL"
           exit-code: "0"
-      
-      - name: Debug PAT
-        env:
-             PAT: ${{ secrets.PAT_TOKEN }}
-        run: |
-            if [ -z "$PAT" ]; then
-              echo "PAT esta VACIO"
-            else
-              echo "PAT tiene valor OK"
-            fi  
 
       # 3) Push report to reportes-trivy
       - name: Push report to reportes-trivy
         env:
-            PAT: ${{ secrets.PAT_TOKEN }}
+          PAT: ${{ secrets.PAT_TOKEN }}
         run: |
-            git clone "https://x-access-token:${PAT}@github.com/Croti67/reportes-trivy.git"
-            mkdir -p reportes-trivy/branch/analisis
-            cp ${{ steps.report.outputs.filename }} reportes-trivy/branch/analisis/
-            cd reportes-trivy
-            git config user.email "ci@github.com"
-            git config user.name "GitHub Actions"
-            git add .
-            git commit -m "Add trivy report ${{ steps.report.outputs.filename }} from ${{ github.repository }}"
-            git push
+          if [ ! -f "${{ steps.report.outputs.filename }}" ]; then
+            echo "Trivy no generó archivo, creando vacío"
+            echo "[]" > "${{ steps.report.outputs.filename }}"
+          fi
+          git clone "https://x-access-token:${PAT}@github.com/Croti67/reportes-trivy.git"
+          mkdir -p reportes-trivy/branch/analisis
+          cp "${{ steps.report.outputs.filename }}" reportes-trivy/branch/analisis/
+          cd reportes-trivy
+          git config user.email "ci@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Add trivy report ${{ steps.report.outputs.filename }} from ${{ github.repository }}"
+          git push
 
 
       # 4) Setup Java + tests (JaCoCo)
