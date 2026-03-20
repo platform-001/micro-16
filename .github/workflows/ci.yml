@@ -53,6 +53,14 @@ jobs:
           test -f gitleaks.json || echo "[]" > gitleaks.json
 
       # 2) Vulnerability scan repo (trivy fs) -> JSON (HIGH/CRITICAL)
+      - name: Set report filename
+        id: report
+        run: |
+          BRANCH_SLUG="$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g')"
+          FECHA="$(date +'%Y%m%d_%H%M%S')"
+          FILENAME="report_${BRANCH_SLUG}_${FECHA}.json"
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+
       - name: Vulnerability scan (trivy fs json)
         continue-on-error: true
         uses: aquasecurity/trivy-action@v0.31.0
@@ -60,9 +68,10 @@ jobs:
           scan-type: "fs"
           scan-ref: "."
           format: "json"
-          output: "trivy-fs.json"
+          output: ${{ steps.report.outputs.filename }}
           severity: "HIGH,CRITICAL"
           exit-code: "0"
+
 
       # 3) Setup Java + tests (JaCoCo)
       - name: Setup Java
