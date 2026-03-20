@@ -111,8 +111,8 @@ jobs:
               \"content\": \"$CONTENT\",
               \"sha\": \"$SHA\"
             }")
-    
-    echo "Respuesta API: $RESPONSE"
+
+          echo "Respuesta API: $RESPONSE"
 
 
       # 4) Setup Java + tests (JaCoCo)
