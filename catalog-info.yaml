@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: clientes-api
+  description: Microservicio API de clientes
+  annotations:
+    github.com/project-slug: TU_ORG/TU_REPO
+spec:
+  type: service
+  lifecycle: experimental
+  owner: guests
+  system: clientes
+  providesApis:
+    - api-clientes
+  dependsOn:
+    - resource:default/clientes-namespace
