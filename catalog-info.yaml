@@ -4,7 +4,7 @@ metadata:
   name: clientes-api
   description: Microservicio API de clientes
   annotations:
-    github.com/project-slug: TU_ORG/TU_REPO
+    github.com/project-slug: platform-001/micro-16
 spec:
   type: service
   lifecycle: experimental
